@@ -1,74 +1,184 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, TextInput, StyleSheet, Text, Image, Pressable } from 'react-native';
+import JobCard from '@/components/JobCard';
+import { images } from '@/constants/images';
+import { icons } from '@/constants/icons';
+//import NavigationBar from '@/components/NavigationBar';
+const HomePage = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+  const subjects = [
+    { id: 1, name: 'Math', icon: icons.math },
+    { id: 2, name: 'Science', icon: icons.science },
+    { id: 3, name: 'English', icon: icons.english },
+    { id: 4, name: 'Technology', icon: icons.technology },
+    { id: 5, name: 'Literature', icon: icons.literature },
+  ];
 
-export default function HomeScreen() {
+  const tutorJobs = [
+    {
+      id: 1,
+      title: 'Calculus Help',
+      rate: '₱250/hr',
+      description: 'Looking for assistance w/ Calculus. mga Derivatives n shit',
+      duration: '2 hours',
+      platform: <Image source={icons.zoom} className='h-5 w-auto' resizeMode='contain'/>,
+      subject: 'Math'
+    },
+    {
+      id: 2,
+      title: 'Physics Help',
+      rate: '₱200/hr',
+      description: 'Sakit sa ulo ng p6, daming alam ni newton need help w the laws of motion',
+      duration: '1½ hours',
+      platform: <Image source={icons.teams} className='h-5 w-auto' resizeMode='contain'/>,
+      subject: 'Science'
+    },
+    {
+      id: 3,
+      title: 'Cisco Packet Tracer Help',
+      rate: '₱150/hr',
+      description: 'Gawin m activity ko sa Cisco Packet Tracer',
+      duration: '1 hour',
+      platform: <Image source={icons.zoom} className='h-5 w-auto' resizeMode='contain'/>,
+      subject: 'Technology'
+    },
+    {
+      id: 4,
+      title: 'ADS: TITAN GEL',
+      rate: '₱750/100ml',
+      description: 'Pampalaki ng ano',
+      duration: '7 days',
+      platform: <Image source={icons.zoom} className='h-5 w-auto' resizeMode='contain'/>,
+      subject: 'Science'
+    },
+    {
+      id: 5,
+      title: 'xBet',
+      rate: '₱10k/hr',
+      description: '500 mo, magiging 10k dito !! Tara na! Karamihan sumusuko bago manalo ng malaking halaga!',
+      duration: '1 hour',
+      platform: <Image source={icons.zoom} className='h-5 w-auto' resizeMode='contain'/>,
+      subject: 'Technology'
+    },
+  ];
+
+  const filteredJobs = tutorJobs.filter(job => {
+    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         job.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSubject = selectedSubject ? job.subject === selectedSubject : true;
+    return matchesSearch && matchesSubject;
+  });
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <View style={styles.headerWrapper}>
+        <View style={styles.logoContainer}>
+          <Image source={images.logo} style={styles.logo} />
+        </View>
+
+        <View style={styles.searchContainer}>
+          <Image source={icons.search} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search topics"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectsContainer}>
+          {subjects.map((subject) => (
+            <Pressable
+              key={subject.id}
+              onPress={() => setSelectedSubject(subject.name)}
+              style={[
+                styles.subjectButton,
+                selectedSubject === subject.name && styles.selectedSubject
+              ]}
+            >
+              <Image source={subject.icon} style={styles.subjectIcon} />
+              <Text style={styles.subjectText}>{subject.name}</Text>
+            </Pressable>
+          ))}
+      </ScrollView>
+    </View>
+
+      <ScrollView style={styles.jobsContainer}>
+        {filteredJobs.map((job) => (
+          <JobCard
+            key={job.id}
+            {...job}
+          />
+        ))}
+      </ScrollView>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  headerWrapper: {
+    backgroundColor: '#45B5AA',
+    paddingBottom: 16,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    paddingTop: 50,
+    paddingBottom: 20,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+  },
+  searchContainer: {
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  searchIcon: {
+    width: 40,
+    height: 40,
+    marginRight: 0,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+  subjectsContainer: {
+    padding: 16,
+  },
+  subjectButton: {
+    alignItems: 'center',
+    marginRight: 16,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    height: 60,
+  },
+  selectedSubject: {
+    backgroundColor: '#e0e0e0',
+  },
+  subjectIcon: {
+    width: 24,
+    height: 24,
+    marginBottom: 4,
+  },
+  subjectText: {
+    fontSize: 12,
+  },
+  jobsContainer: {
+    flex: 1,
+    padding: 16,
   },
 });
+
+export default HomePage;
+
